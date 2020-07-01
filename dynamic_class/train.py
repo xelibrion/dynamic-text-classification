@@ -11,14 +11,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.optim import Adam
 from torch.nn import CrossEntropyLoss
 
-from catalyst.dl import SupervisedRunner
-
 from catalyst.dl.callbacks import (
     CriterionCallback,
-    AccuracyCallback,
     EarlyStoppingCallback,
     OptimizerCallback,
-    SchedulerCallback,
     CheckpointCallback,
 )
 
