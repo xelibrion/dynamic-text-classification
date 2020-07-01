@@ -1,0 +1,38 @@
+* catalyst-dynamic-text-classification
+
+This code is a re-implementation of the paper [[https://arxiv.org/abs/1911.01026][Metric Learning for Dynamic Text Classification]] by ASAPP Research using [[https://github.com/catalyst-team/catalyst][Catalyst]] framework. 
+
+The original code for the paper can be found here [[https://github.com/asappresearch/dynamic-classification][asappresearch/dynamic-classification]].
+
+** How to run
+1. Clone repository
+#+BEGIN_SRC shell
+git clone git@github.com:xelibrion/catalyst-dynamic-text-classification.git
+cd catalyst-dynamic-text-classification
+#+END_SRC
+
+2. Install dependencies
+#+BEGIN_SRC shell
+pip install -e .
+#+END_SRC
+
+3. Fetch data
+#+BEGIN_SRC shell
+./get_data.py
+#+END_SRC
+
+4. Run train script to build vocabulary (it will fail to train the model without embeddings)
+#+BEGIN_SRC shell
+./train.py
+#+END_SRC
+
+5. Compute words vectors for the vocabulary using a fasttext model. Can be downloaded [[https://fasttext.cc/docs/en/crawl-vectors.html][here]].
+#+BEGIN_SRC shell
+cat input/vocab.txt | awk -F ' ' '{print $1}' > vocab_words.txt
+~/projects/fasttext/fasttext print-word-vectors  ~/projects/fasttext/cc.en.300.bin < vocab_words.txt > vocab_vectors.txt
+#+END_SRC
+
+6. Run train script to build vocabulary
+#+BEGIN_SRC shell
+./train.py
+#+END_SRC
