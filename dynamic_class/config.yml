@@ -1,0 +1,44 @@
+model_params:
+  embedding_dim: 300
+  hidden_dim: 128
+  n_layers: 4
+  bidirectional: True
+  dropout: 0.5
+  rnn_type: "sru"
+  distance: hyperbolic
+
+data_params:
+  batch_size: 96
+  num_workers: 1
+  vocab_max_size: 20000
+  n_episodes: 100
+  n_support: 4
+  n_query: 64
+
+optimizer_params:
+  lr: 0.001
+  weight_decay: 0.001
+
+optimizer_callback_params:
+  accumulation_steps: 1
+  grad_clip_params:
+    func: clip_grad_norm_
+    max_norm: 1.0
+
+criterion_callback_params:
+  input_key: "query_label"
+
+scheduler_params:
+  patience: 2
+  factor: 0.3
+  min_lr: 0.00001
+  threshold: 0.005
+  threshold_mode: "abs"
+  mode: "max"
+  cooldown: 2
+
+early_stopping:
+  patience: 10
+  metric: "acc"
+  minimize: False
+  min_delta: 0.005
