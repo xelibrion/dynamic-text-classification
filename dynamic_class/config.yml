@@ -38,7 +38,7 @@ scheduler_params:
   cooldown: 2
 
 early_stopping:
-  patience: 10
+  patience: 20
   metric: "acc"
   minimize: False
   min_delta: 0.005
