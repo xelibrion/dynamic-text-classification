@@ -344,23 +344,15 @@ class PrototypicalTextClassifier(nn.Module):
         if support_label is not None and len(support_label.size()) != 1:
             raise ValueError("Please check support_label size")
 
-        padding_mask = (query != self.padding_idx).byte()
-        query_embeddings = self.embedding_dropout(self.embedding(query))
-        query_encoding = self.encoder(query_embeddings, padding_mask=padding_mask)
+        query_encoding = self.encode(query)
 
-        if prototypes is not None:
-            prototypes = prototypes
-        elif support is not None and support_label is not None:
-            padding_mask = (support != self.padding_idx).byte()
-            support_embeddings = self.embedding_dropout(self.embedding(support))
-            support_encoding = self.encoder(
-                support_embeddings, padding_mask=padding_mask
-            )
-
-            # Compute prototypes
-            prototypes = self.compute_prototypes(support_encoding, support_label)
-        else:
-            raise ValueError("No prototypes set or provided")
+        if prototypes is None:
+            if support is not None and support_label is not None:
+                support_encoding = self.encode(support)
+                # Compute prototypes
+                prototypes = self.compute_prototypes(support_encoding, support_label)
+            else:
+                raise ValueError("No prototypes set or provided")
 
         dist = self.distance_module(query_encoding, prototypes)
-        return -dist
+        return {"logits": -dist, "embeddings": query_encoding}

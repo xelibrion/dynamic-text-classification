@@ -5,11 +5,17 @@ from catalyst import dl
 
 
 class CustomRunner(dl.Runner):
-    def __init__(self, **kwargs):
+    def __init__(self, *, prototypes: torch.Tensor = None, **kwargs):
         super().__init__(self)
         self.parked_callbacks = []
         self.proto_encodings = []
         self.proto_targets = []
+
+        if prototypes is not None:
+            assert isinstance(
+                prototypes, torch.Tensor
+            ), "Expect prototypes as torch.Tensor"
+        self.prototypes = prototypes
 
     def _run_event(self, event: str):
         super()._run_event(event)
@@ -39,7 +45,7 @@ class CustomRunner(dl.Runner):
                 support=batch["support"].squeeze(),
                 support_label=batch["support_label"].squeeze(),
             )
-            self.state.output = {"logits": outputs}
+            self.state.output = outputs
 
         if self.state.loader_name == "prototypes":
             encodings = self.model.encode(text=batch["inputs"])
@@ -52,15 +58,23 @@ class CustomRunner(dl.Runner):
             outputs = self.model.forward(
                 query=batch["inputs"], prototypes=self.prototypes
             )
-            self.state.output = {"logits": outputs}
+            self.state.output = outputs
 
             val_metric = (
-                (outputs.argmax(dim=1) == batch["targets"]).float().mean().item()
+                (outputs["logits"].argmax(dim=1) == batch["targets"])
+                .float()
+                .mean()
+                .item()
             )
             batch_metrics = {"acc": val_metric}
             self.state.batch_metrics.update(**batch_metrics)
 
     def predict_batch(self, batch: Mapping[str, torch.Tensor]):
         batch = self._batch2device(batch, self.device)
-        outputs = self.model.encode(batch["inputs"])
-        return outputs
+        if self.prototypes is None:
+            embeddings = self.model.encode(batch["inputs"])
+            return {"embeddings": embeddings}
+        return self.model.forward(
+            query=batch["inputs"],
+            prototypes=self._batch2device(self.prototypes, self.device),
+        )
