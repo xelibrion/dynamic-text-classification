@@ -1,5 +1,5 @@
 pandas==1.0.3
 scikit-learn==1.5.0
-torch==1.5.0
+torch==1.13.1
 catalyst==20.5
 sru==2.3.5
